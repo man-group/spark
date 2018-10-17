@@ -612,7 +612,9 @@ private[yarn] class YarnAllocator(
         if (exitCausedByApp) {
           logWarning(containerExitReason)
         } else {
-          logInfo(containerExitReason)
+          if (exitStatus != ContainerExitStatus.PREEMPTED) {
+            logInfo(containerExitReason)
+          }
         }
         ExecutorExited(exitStatus, exitCausedByApp, containerExitReason)
       } else {

@@ -260,7 +260,9 @@ private[spark] abstract class YarnSchedulerBackend(
 
       case r @ RemoveExecutor(executorId, reason) =>
         if (!stopped.get) {
-          logWarning(s"Requesting driver to remove executor $executorId for reason $reason")
+          if (!reason.toString().contains("preempted")) {
+            logWarning(s"Requesting driver to remove executor $executorId for reason $reason")
+          }
           driverEndpoint.send(r)
         }
     }

@@ -75,8 +75,7 @@ public class TransportChannelHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    logger.warn("Exception in connection from " + getRemoteAddress(ctx.channel()),
-      cause);
+    logger.warn("Exception in connection from {}, likely due to preemption (nothing to worry about)", getRemoteAddress(ctx.channel()));
     requestHandler.exceptionCaught(cause);
     responseHandler.exceptionCaught(cause);
     ctx.close();

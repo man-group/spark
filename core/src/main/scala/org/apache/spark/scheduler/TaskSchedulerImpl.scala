@@ -580,7 +580,9 @@ private[spark] class TaskSchedulerImpl(
     case ExecutorKilled =>
       logInfo(s"Executor $executorId on $hostPort killed by driver.")
     case _ =>
-      logError(s"Lost executor $executorId on $hostPort: $reason")
+      if (!reason.toString().contains("preempted")) {
+        logError(s"Lost executor $executorId on $hostPort: $reason")
+      }
   }
 
   /**

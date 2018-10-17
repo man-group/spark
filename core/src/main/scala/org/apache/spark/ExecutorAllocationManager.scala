@@ -601,7 +601,8 @@ private[spark] class ExecutorAllocationManager(
           s"scheduled to run on the executor (to expire in ${(realTimeout - now)/1000} seconds)")
       }
     } else {
-      logWarning(s"Attempted to mark unknown executor $executorId idle")
+      // too verbose
+      // logWarning(s"Attempted to mark unknown executor $executorId idle")
     }
   }
 
