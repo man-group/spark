@@ -544,7 +544,7 @@ def _hijack_namedtuple():
             _hack_namedtuple(o)  # hack inplace
 
 
-_hijack_namedtuple()
+# _hijack_namedtuple()
 
 
 class PickleSerializer(FramedSerializer):
