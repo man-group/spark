@@ -453,12 +453,6 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
    * idempotent - may mutate this conf object to convert deprecated settings to supported ones.
    */
   private[spark] def validateSettings() {
-    if (contains("spark.local.dir")) {
-      val msg = "In Spark 1.0 and later spark.local.dir will be overridden by the value set by " +
-        "the cluster manager (via SPARK_LOCAL_DIRS in mesos/standalone and LOCAL_DIRS in YARN)."
-      logWarning(msg)
-    }
-
     val executorOptsKey = "spark.executor.extraJavaOptions"
     val executorClasspathKey = "spark.executor.extraClassPath"
     val driverOptsKey = "spark.driver.extraJavaOptions"
