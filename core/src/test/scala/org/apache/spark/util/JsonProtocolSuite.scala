@@ -34,6 +34,7 @@ import org.apache.spark.rdd.RDDOperationScope
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.shuffle.MetadataFetchFailedException
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage._
 
 class JsonProtocolSuite extends SparkFunSuite {
@@ -94,7 +95,11 @@ class JsonProtocolSuite extends SparkFunSuite {
         makeTaskMetrics(300L, 400L, 500L, 600L, 700, 800, hasHadoopInput = true, hasOutput = true)
           .accumulators().map(AccumulatorSuite.makeInfo)
           .zipWithIndex.map { case (a, i) => a.copy(id = i) }
-      SparkListenerExecutorMetricsUpdate("exec3", Seq((1L, 2, 3, accumUpdates)))
+      SparkListenerExecutorMetricsUpdate(
+        "exec3",
+        Seq((1L, 2, 3, accumUpdates)),
+        new CgroupMetrics(0, 0, 0)
+      )
     }
     val blockUpdated =
       SparkListenerBlockUpdated(BlockUpdatedInfo(BlockManagerId("Stars",

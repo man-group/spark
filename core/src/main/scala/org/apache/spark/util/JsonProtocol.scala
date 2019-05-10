@@ -34,6 +34,7 @@ import org.apache.spark.executor._
 import org.apache.spark.rdd.RDDOperationScope
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.ExecutorInfo
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage._
 
 /**
@@ -243,7 +244,12 @@ private[spark] object JsonProtocol {
       ("Stage ID" -> stageId) ~
       ("Stage Attempt ID" -> stageAttemptId) ~
       ("Accumulator Updates" -> JArray(updates.map(accumulableInfoToJson).toList))
-    })
+    }) ~
+    ("cgroupMetrics" -> (
+      ("memoryUsageInBytes" -> metricsUpdate.cgroupMetrics.memoryUsageInBytes) ~
+      ("memoryPeakInBytes" -> metricsUpdate.cgroupMetrics.memoryPeakInBytes) ~
+      ("memoryLimitInBytes" -> metricsUpdate.cgroupMetrics.memoryLimitInBytes)
+    ))
   }
 
   def blockUpdateToJson(blockUpdate: SparkListenerBlockUpdated): JValue = {
@@ -689,7 +695,12 @@ private[spark] object JsonProtocol {
         (json \ "Accumulator Updates").extract[List[JValue]].map(accumulableInfoFromJson)
       (taskId, stageId, stageAttemptId, updates)
     }
-    SparkListenerExecutorMetricsUpdate(execInfo, accumUpdates)
+    val cgroupMetrics = new CgroupMetrics(
+      (json \ "cgroupMetrics" \ "memoryUsageInBytes").extract[Long],
+      (json \ "cgroupMetrics" \ "memoryPeakInBytes").extract[Long],
+      (json \ "cgroupMetrics" \ "memoryLimitInBytes").extract[Long]
+    )
+    SparkListenerExecutorMetricsUpdate(execInfo, accumUpdates, cgroupMetrics)
   }
 
   def blockUpdateFromJson(json: JValue): SparkListenerBlockUpdated = {

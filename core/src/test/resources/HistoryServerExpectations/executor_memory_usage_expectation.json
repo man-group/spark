@@ -25,6 +25,11 @@
     "usedOffHeapStorageMemory" : 0,
     "totalOnHeapStorageMemory" : 384093388,
     "totalOffHeapStorageMemory" : 524288000
+  },
+  "cgroupMetrics" : {
+    "memoryUsageInBytes" : 0,
+    "memoryPeakInBytes" : 0,
+    "memoryLimitInBytes" : 0
   }
 }, {
   "id" : "3",
@@ -56,6 +61,11 @@
     "usedOffHeapStorageMemory" : 0,
     "totalOnHeapStorageMemory" : 384093388,
     "totalOffHeapStorageMemory" : 524288000
+  },
+  "cgroupMetrics" : {
+    "memoryUsageInBytes" : 0,
+    "memoryPeakInBytes" : 0,
+    "memoryLimitInBytes" : 0
   }
 } ,{
   "id" : "2",
@@ -82,11 +92,16 @@
     "stdout" : "http://172.22.0.167:51469/logPage/?appId=app-20161116163331-0000&executorId=2&logType=stdout",
     "stderr" : "http://172.22.0.167:51469/logPage/?appId=app-20161116163331-0000&executorId=2&logType=stderr"
   },
-  "memoryMetrics": {
+  "memoryMetrics" : {
     "usedOnHeapStorageMemory" : 0,
     "usedOffHeapStorageMemory" : 0,
     "totalOnHeapStorageMemory" : 384093388,
     "totalOffHeapStorageMemory" : 524288000
+  },
+  "cgroupMetrics" : {
+    "memoryUsageInBytes" : 0,
+    "memoryPeakInBytes" : 0,
+    "memoryLimitInBytes" : 0
   }
 }, {
   "id" : "1",
@@ -113,11 +128,16 @@
     "stdout" : "http://172.22.0.167:51467/logPage/?appId=app-20161116163331-0000&executorId=1&logType=stdout",
     "stderr" : "http://172.22.0.167:51467/logPage/?appId=app-20161116163331-0000&executorId=1&logType=stderr"
   },
-  "memoryMetrics": {
+  "memoryMetrics" : {
     "usedOnHeapStorageMemory": 0,
     "usedOffHeapStorageMemory": 0,
     "totalOnHeapStorageMemory": 384093388,
     "totalOffHeapStorageMemory": 524288000
+  },
+  "cgroupMetrics" : {
+    "memoryUsageInBytes" : 0,
+    "memoryPeakInBytes" : 0,
+    "memoryLimitInBytes" : 0
   }
 }, {
   "id" : "0",
@@ -144,10 +164,15 @@
     "stdout" : "http://172.22.0.167:51465/logPage/?appId=app-20161116163331-0000&executorId=0&logType=stdout",
     "stderr" : "http://172.22.0.167:51465/logPage/?appId=app-20161116163331-0000&executorId=0&logType=stderr"
   },
-  "memoryMetrics": {
+  "memoryMetrics" : {
     "usedOnHeapStorageMemory" : 0,
     "usedOffHeapStorageMemory" : 0,
     "totalOnHeapStorageMemory" : 384093388,
     "totalOffHeapStorageMemory" : 524288000
+  },
+  "cgroupMetrics" : {
+    "memoryUsageInBytes" : 0,
+    "memoryPeakInBytes" : 0,
+    "memoryLimitInBytes" : 0
   }
 } ]

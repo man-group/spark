@@ -31,6 +31,7 @@ import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster._
 import org.apache.spark.status.api.v1
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage._
 import org.apache.spark.util.Utils
 import org.apache.spark.util.kvstore._
@@ -236,7 +237,8 @@ class AppStatusListenerSuite extends SparkFunSuite with BeforeAndAfter {
           Some(value), None, true, false, None)
         listener.onExecutorMetricsUpdate(SparkListenerExecutorMetricsUpdate(
           task.executorId,
-          Seq((task.taskId, stages.head.stageId, stages.head.attemptNumber, Seq(accum)))))
+          Seq((task.taskId, stages.head.stageId, stages.head.attemptNumber, Seq(accum))),
+          new CgroupMetrics(0, 0, 0)))
       }
 
       check[StageDataWrapper](key(stages.head)) { stage =>

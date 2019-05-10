@@ -94,13 +94,19 @@ class ExecutorSummary private[spark](
     val removeTime: Option[Date],
     val removeReason: Option[String],
     val executorLogs: Map[String, String],
-    val memoryMetrics: Option[MemoryMetrics])
+    val memoryMetrics: Option[MemoryMetrics],
+    val cgroupMetrics: Option[CgroupMetrics])
 
 class MemoryMetrics private[spark](
     val usedOnHeapStorageMemory: Long,
     val usedOffHeapStorageMemory: Long,
     val totalOnHeapStorageMemory: Long,
     val totalOffHeapStorageMemory: Long)
+
+class CgroupMetrics private[spark](
+    val memoryUsageInBytes: Long,
+    val memoryPeakInBytes: Long,
+    val memoryLimitInBytes: Long) extends Serializable
 
 class JobData private[spark](
     val jobId: Int,

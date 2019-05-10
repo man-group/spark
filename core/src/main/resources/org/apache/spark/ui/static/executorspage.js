@@ -193,6 +193,9 @@ $(document).ready(function () {
             var allOnHeapMaxMemory = 0;
             var allOffHeapMemoryUsed = 0;
             var allOffHeapMaxMemory = 0;
+            var allCgroupMemoryUsageInBytes = 0;
+            var allCgroupMemoryPeakInBytes = 0;
+            var allCgroupMemoryLimitInBytes = 0;
             var allDiskUsed = 0;
             var allTotalCores = 0;
             var allMaxTasks = 0;
@@ -215,6 +218,9 @@ $(document).ready(function () {
             var activeOnHeapMaxMemory = 0;
             var activeOffHeapMemoryUsed = 0;
             var activeOffHeapMaxMemory = 0;
+            var activeCgroupMemoryUsageInBytes = 0;
+            var activeCgroupMemoryPeakInBytes = 0;
+            var activeCgroupMemoryLimitInBytes = 0;
             var activeDiskUsed = 0;
             var activeTotalCores = 0;
             var activeMaxTasks = 0;
@@ -237,6 +243,9 @@ $(document).ready(function () {
             var deadOnHeapMaxMemory = 0;
             var deadOffHeapMemoryUsed = 0;
             var deadOffHeapMaxMemory = 0;
+            var deadCgroupMemoryUsageInBytes = 0;
+            var deadCgroupMemoryPeakInBytes = 0;
+            var deadCgroupMemoryLimitInBytes = 0;
             var deadDiskUsed = 0;
             var deadTotalCores = 0;
             var deadMaxTasks = 0;
@@ -252,14 +261,20 @@ $(document).ready(function () {
             var deadTotalBlacklisted = 0;
 
             response.forEach(function (exec) {
-                var memoryMetrics = {
+                var defaultMemoryMetrics = {
                     usedOnHeapStorageMemory: 0,
                     usedOffHeapStorageMemory: 0,
                     totalOnHeapStorageMemory: 0,
                     totalOffHeapStorageMemory: 0
                 };
+                exec.memoryMetrics = exec.hasOwnProperty('memoryMetrics') ? exec.memoryMetrics : defaultMemoryMetrics;
 
-                exec.memoryMetrics = exec.hasOwnProperty('memoryMetrics') ? exec.memoryMetrics : memoryMetrics;
+                var defaultCgroupMetrics = {
+                    memoryUsageInBytes: 0,
+                    memoryPeakInBytes: 0,
+                    memoryLimitInBytes: 0
+                };
+                exec.cgroupMetrics = exec.hasOwnProperty('cgroupMetrics') ? exec.cgroupMetrics : defaultCgroupMetrics;
             });
 
             response.forEach(function (exec) {
@@ -271,6 +286,9 @@ $(document).ready(function () {
                 allOnHeapMaxMemory += exec.memoryMetrics.totalOnHeapStorageMemory;
                 allOffHeapMemoryUsed += exec.memoryMetrics.usedOffHeapStorageMemory;
                 allOffHeapMaxMemory += exec.memoryMetrics.totalOffHeapStorageMemory;
+                allCgroupMemoryUsageInBytes += exec.cgroupMetrics.memoryUsageInBytes;
+                allCgroupMemoryPeakInBytes += exec.cgroupMetrics.memoryPeakInBytes;
+                allCgroupMemoryLimitInBytes += exec.cgroupMetrics.memoryLimitInBytes;
                 allDiskUsed += exec.diskUsed;
                 allTotalCores += exec.totalCores;
                 allMaxTasks += exec.maxTasks;
@@ -293,6 +311,9 @@ $(document).ready(function () {
                     activeOnHeapMaxMemory += exec.memoryMetrics.totalOnHeapStorageMemory;
                     activeOffHeapMemoryUsed += exec.memoryMetrics.usedOffHeapStorageMemory;
                     activeOffHeapMaxMemory += exec.memoryMetrics.totalOffHeapStorageMemory;
+                    activeCgroupMemoryUsageInBytes += exec.cgroupMetrics.memoryUsageInBytes;
+                    activeCgroupMemoryPeakInBytes += exec.cgroupMetrics.memoryPeakInBytes;
+                    activeCgroupMemoryLimitInBytes += exec.cgroupMetrics.memoryLimitInBytes;
                     activeDiskUsed += exec.diskUsed;
                     activeTotalCores += exec.totalCores;
                     activeMaxTasks += exec.maxTasks;
@@ -315,6 +336,10 @@ $(document).ready(function () {
                     deadOnHeapMaxMemory += exec.memoryMetrics.totalOnHeapStorageMemory;
                     deadOffHeapMemoryUsed += exec.memoryMetrics.usedOffHeapStorageMemory;
                     deadOffHeapMaxMemory += exec.memoryMetrics.totalOffHeapStorageMemory;
+                    deadCgroupMemoryUsageInBytes += exec.cgroupMetrics.memoryUsageInBytes;
+                    deadCgroupMemoryPeakInBytes += exec.cgroupMetrics.memoryPeakInBytes;
+                    deadCgroupMemoryLimitInBytes += exec.cgroupMetrics.memoryLimitInBytes;
+                    // deadCgroupMemoryLimitInBytes = Math.max(deadCgroupMemoryLimitInBytes, exec.memoryMetrics.memoryLimitInBytes);
                     deadDiskUsed += exec.diskUsed;
                     deadTotalCores += exec.totalCores;
                     deadMaxTasks += exec.maxTasks;
@@ -340,6 +365,9 @@ $(document).ready(function () {
                 "allOnHeapMaxMemory": allOnHeapMaxMemory,
                 "allOffHeapMemoryUsed": allOffHeapMemoryUsed,
                 "allOffHeapMaxMemory": allOffHeapMaxMemory,
+                "allCgroupMemoryUsageInBytes": allCgroupMemoryUsageInBytes,
+                "allCgroupMemoryPeakInBytes": allCgroupMemoryPeakInBytes,
+                "allCgroupMemoryLimitInBytes": allCgroupMemoryLimitInBytes,
                 "allDiskUsed": allDiskUsed,
                 "allTotalCores": allTotalCores,
                 "allMaxTasks": allMaxTasks,
@@ -363,6 +391,9 @@ $(document).ready(function () {
                 "allOnHeapMaxMemory": activeOnHeapMaxMemory,
                 "allOffHeapMemoryUsed": activeOffHeapMemoryUsed,
                 "allOffHeapMaxMemory": activeOffHeapMaxMemory,
+                "allCgroupMemoryUsageInBytes": activeCgroupMemoryUsageInBytes,
+                "allCgroupMemoryPeakInBytes": activeCgroupMemoryPeakInBytes,
+                "allCgroupMemoryLimitInBytes": activeCgroupMemoryLimitInBytes,
                 "allDiskUsed": activeDiskUsed,
                 "allTotalCores": activeTotalCores,
                 "allMaxTasks": activeMaxTasks,
@@ -386,6 +417,9 @@ $(document).ready(function () {
                 "allOnHeapMaxMemory": deadOnHeapMaxMemory,
                 "allOffHeapMemoryUsed": deadOffHeapMemoryUsed,
                 "allOffHeapMaxMemory": deadOffHeapMaxMemory,
+                "allCgroupMemoryUsageInBytes": deadCgroupMemoryUsageInBytes,
+                "allCgroupMemoryPeakInBytes": deadCgroupMemoryPeakInBytes,
+                "allCgroupMemoryLimitInBytes": deadCgroupMemoryLimitInBytes,
                 "allDiskUsed": deadDiskUsed,
                 "allTotalCores": deadTotalCores,
                 "allMaxTasks": deadMaxTasks,
@@ -452,6 +486,39 @@ $(document).ready(function () {
                             },
                             "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                                 $(nTd).addClass('off_heap_memory')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.cgroupMetrics.memoryUsageInBytes;
+                                else
+                                    return (formatBytes(row.cgroupMetrics.memoryUsageInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_usage')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.cgroupMetrics.memoryPeakInBytes;
+                                else
+                                    return (formatBytes(row.cgroupMetrics.memoryPeakInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_peak')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.cgroupMetrics.memoryLimitInBytes;
+                                else
+                                    return (formatBytes(row.cgroupMetrics.memoryLimitInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_limit')
                             }
                         },
                         {data: 'diskUsed', render: formatBytes},
@@ -548,6 +615,39 @@ $(document).ready(function () {
                             },
                             "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                                 $(nTd).addClass('off_heap_memory')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.allCgroupMemoryUsageInBytes;
+                                else
+                                    return (formatBytes(row.allCgroupMemoryUsageInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_usage')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.allCgroupMemoryPeakInBytes;
+                                else
+                                    return (formatBytes(row.allCgroupMemoryPeakInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_peak')
+                            }
+                        },
+                        {
+                            data: function (row, type) {
+                                if (type !== 'display')
+                                    return row.allCgroupMemoryLimitInBytes;
+                                else
+                                    return (formatBytes(row.allCgroupMemoryLimitInBytes, type));
+                            },
+                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                                $(nTd).addClass('cgroup_memory_limit')
                             }
                         },
                         {data: 'allDiskUsed', render: formatBytes},

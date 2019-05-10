@@ -38,6 +38,7 @@ import org.apache.spark.sql.execution.metric.{SQLMetric, SQLMetrics}
 import org.apache.spark.sql.internal.StaticSQLConf.UI_RETAINED_EXECUTIONS
 import org.apache.spark.sql.test.SharedSQLContext
 import org.apache.spark.status.ElementTrackingStore
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.status.config._
 import org.apache.spark.util.{AccumulatorMetadata, JsonProtocol, LongAccumulator}
 import org.apache.spark.util.kvstore.InMemoryStore
@@ -180,11 +181,15 @@ class SQLAppStatusListenerSuite extends SparkFunSuite with SharedSQLContext with
 
     assert(statusStore.executionMetrics(executionId).isEmpty)
 
-    listener.onExecutorMetricsUpdate(SparkListenerExecutorMetricsUpdate("", Seq(
+    listener.onExecutorMetricsUpdate(SparkListenerExecutorMetricsUpdate(
+      "",
+      Seq(
       // (task id, stage id, stage attempt, accum updates)
       (0L, 0, 0, createAccumulatorInfos(accumulatorUpdates)),
       (1L, 0, 0, createAccumulatorInfos(accumulatorUpdates))
-    )))
+      ),
+      new CgroupMetrics(0, 0, 0)
+    ))
 
     checkAnswer(statusStore.executionMetrics(executionId), accumulatorUpdates.mapValues(_ * 2))
 
@@ -198,7 +203,7 @@ class SQLAppStatusListenerSuite extends SparkFunSuite with SharedSQLContext with
       // (task id, stage id, stage attempt, accum updates)
       (0L, 0, 0, createAccumulatorInfos(accumulatorUpdates)),
       (1L, 0, 0, createAccumulatorInfos(accumulatorUpdates.mapValues(_ * 2)))
-    )))
+    ), new CgroupMetrics(0, 0, 0)))
 
     checkAnswer(statusStore.executionMetrics(executionId), accumulatorUpdates.mapValues(_ * 3))
 
@@ -209,7 +214,7 @@ class SQLAppStatusListenerSuite extends SparkFunSuite with SharedSQLContext with
       // (task id, stage id, stage attempt, accum updates)
       (0L, 0, 1, createAccumulatorInfos(accumulatorUpdates)),
       (1L, 0, 1, createAccumulatorInfos(accumulatorUpdates))
-    )))
+    ), new CgroupMetrics(0, 0, 0)))
 
     checkAnswer(statusStore.executionMetrics(executionId), accumulatorUpdates.mapValues(_ * 2))
 
@@ -249,7 +254,7 @@ class SQLAppStatusListenerSuite extends SparkFunSuite with SharedSQLContext with
       // (task id, stage id, stage attempt, accum updates)
       (0L, 1, 0, createAccumulatorInfos(accumulatorUpdates)),
       (1L, 1, 0, createAccumulatorInfos(accumulatorUpdates))
-    )))
+    ), new CgroupMetrics(0, 0, 0)))
 
     checkAnswer(statusStore.executionMetrics(executionId), accumulatorUpdates.mapValues(_ * 7))
 

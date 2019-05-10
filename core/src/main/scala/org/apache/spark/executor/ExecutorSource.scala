@@ -43,6 +43,8 @@ class ExecutorSource(threadPool: ThreadPoolExecutor, executorId: String) extends
 
   override val sourceName = "executor"
 
+  private val cgroupMetrics = new CgroupMetricReader()
+
   // Gauge for executor thread pool's actively executing task counts
   metricRegistry.register(MetricRegistry.name("threadpool", "activeTasks"), new Gauge[Int] {
     override def getValue: Int = threadPool.getActiveCount()
@@ -72,6 +74,22 @@ class ExecutorSource(threadPool: ThreadPoolExecutor, executorId: String) extends
     registerFileSystemStat(scheme, "largeRead_ops", _.getLargeReadOps(), 0)
     registerFileSystemStat(scheme, "write_ops", _.getWriteOps(), 0)
   }
+
+  val METRIC_CGROUP_MEMORY_USAGE_IN_BYTES: Gauge[Long] = metricRegistry.register(
+    MetricRegistry.name("cgroupMemoryUsageInBytes"), new Gauge[Long] {
+      override def getValue: Long = cgroupMetrics.getCgroupMemoryUsageInBytes().getOrElse(0)
+    }
+  )
+  val METRIC_CGROUP_MEMORY_PEAK_IN_BYTES: Gauge[Long] = metricRegistry.register(
+    MetricRegistry.name("cgroupMemoryPeakInBytes"), new Gauge[Long] {
+      override def getValue: Long = cgroupMetrics.getCgroupMemoryPeakInBytes().getOrElse(0)
+    }
+  )
+  val METRIC_CGROUP_MEMORY_LIMIT_IN_BYTES: Gauge[Long] = metricRegistry.register(
+    MetricRegistry.name("cgroupMemoryLimitInBytes"), new Gauge[Long] {
+      override def getValue: Long = cgroupMetrics.getCgroupMemoryLimitInBytes().getOrElse(0)
+    }
+  )
 
   // Expose executor task metrics using the Dropwizard metrics system.
   // The list is taken from TaskMetrics.scala

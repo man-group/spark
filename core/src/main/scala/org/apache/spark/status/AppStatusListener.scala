@@ -29,6 +29,7 @@ import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler._
 import org.apache.spark.status.api.v1
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage._
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.ui.scope._
@@ -655,6 +656,17 @@ private[spark] class AppStatusListener(
 
   override def onExecutorMetricsUpdate(event: SparkListenerExecutorMetricsUpdate): Unit = {
     val now = System.nanoTime()
+
+    liveExecutors.get(event.execId).foreach(exec => {
+      exec.cgroupMetrics = new CgroupMetrics(
+        event.cgroupMetrics.memoryUsageInBytes,
+        event.cgroupMetrics.memoryPeakInBytes,
+        event.cgroupMetrics.memoryLimitInBytes
+      )
+
+      // without this the executor json doesn't seem to update
+      update(exec, now)
+    })
 
     event.accumUpdates.foreach { case (taskId, sid, sAttempt, accumUpdates) =>
       liveTasks.get(taskId).foreach { task =>

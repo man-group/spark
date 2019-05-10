@@ -28,6 +28,7 @@ import org.apache.spark.JobExecutionStatus
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.scheduler.{AccumulableInfo, StageInfo, TaskInfo}
 import org.apache.spark.status.api.v1
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage.RDDInfo
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.util.AccumulatorContext
@@ -264,13 +265,17 @@ private class LiveExecutor(val executorId: String, _addTime: Long) extends LiveE
   var usedOnHeap = 0L
   var usedOffHeap = 0L
 
+  var cgroupMetrics: CgroupMetrics = new CgroupMetrics(0, 0, 0)
+
   def hasMemoryInfo: Boolean = totalOnHeap >= 0L
 
   def hostname: String = if (host != null) host else hostPort.split(":")(0)
 
   override protected def doUpdate(): Any = {
     val memoryMetrics = if (totalOnHeap >= 0) {
-      Some(new v1.MemoryMetrics(usedOnHeap, usedOffHeap, totalOnHeap, totalOffHeap))
+      Some(new v1.MemoryMetrics(
+        usedOnHeap, usedOffHeap, totalOnHeap, totalOffHeap
+      ))
     } else {
       None
     }
@@ -299,7 +304,8 @@ private class LiveExecutor(val executorId: String, _addTime: Long) extends LiveE
       Option(removeTime),
       Option(removeReason),
       executorLogs,
-      memoryMetrics)
+      memoryMetrics,
+      Some(cgroupMetrics))
     new ExecutorSummaryWrapper(info)
   }
 

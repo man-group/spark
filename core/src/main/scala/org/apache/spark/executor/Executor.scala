@@ -39,6 +39,7 @@ import org.apache.spark.memory.{SparkOutOfMemoryError, TaskMemoryManager}
 import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.scheduler.{DirectTaskResult, IndirectTaskResult, Task, TaskDescription}
 import org.apache.spark.shuffle.FetchFailedException
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
@@ -69,6 +70,8 @@ private[spark] class Executor(
   private val EMPTY_BYTE_BUFFER = ByteBuffer.wrap(new Array[Byte](0))
 
   private val conf = env.conf
+
+  private val cgroupMetricReader = new CgroupMetricReader()
 
   // No ip or host:port - just hostname
   Utils.checkHost(executorHostname)
@@ -780,7 +783,16 @@ private[spark] class Executor(
       }
     }
 
-    val message = Heartbeat(executorId, accumUpdates.toArray, env.blockManager.blockManagerId)
+    // we can't easily use accumulators for the cgroup metrics here,
+    // because we can't easily register them against the spark context
+    val cgroupMetrics = cgroupMetricReader.getCgroupMetrics()
+
+    val message = Heartbeat(
+      executorId,
+      accumUpdates.toArray,
+      env.blockManager.blockManagerId,
+      cgroupMetrics
+    )
     try {
       val response = heartbeatReceiverRef.askSync[HeartbeatResponse](
           message, RpcTimeout(conf, "spark.executor.heartbeatInterval", "10s"))

@@ -28,6 +28,7 @@ import org.apache.spark.{SparkConf, TaskEndReason}
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.scheduler.cluster.ExecutorInfo
+import org.apache.spark.status.api.v1.CgroupMetrics
 import org.apache.spark.storage.{BlockManagerId, BlockUpdatedInfo}
 import org.apache.spark.ui.SparkUI
 
@@ -146,7 +147,9 @@ case class SparkListenerBlockUpdated(blockUpdatedInfo: BlockUpdatedInfo) extends
 @DeveloperApi
 case class SparkListenerExecutorMetricsUpdate(
     execId: String,
-    accumUpdates: Seq[(Long, Int, Int, Seq[AccumulableInfo])])
+    //                 taskId, sid, sAttempt, accumUpdates
+    accumUpdates: Seq[(Long, Int, Int, Seq[AccumulableInfo])],
+    cgroupMetrics: CgroupMetrics)
   extends SparkListenerEvent
 
 @DeveloperApi

@@ -171,6 +171,11 @@ span.additional-metric-title {
   font-weight: normal;
 }
 
+/* bootstrap defaults this to max-width=200px, which is too small. */
+div.tooltip-inner {
+  max-width: 900px !important;
+}
+
 .arrow-open {
   width: 0;
   height: 0;
@@ -204,10 +209,18 @@ span.additional-metric-title {
 
 /* Hide all additional metrics by default. This is done here rather than using JavaScript to
  * avoid slow page loads for stage pages with large numbers (e.g., thousands) of tasks. */
+/*
 .scheduler_delay, .deserialization_time, .fetch_wait_time, .shuffle_read_remote,
 .serialization_time, .getting_result_time, .peak_execution_memory,
-.on_heap_memory, .off_heap_memory {
+.on_heap_memory, .off_heap_memory,
+.cgroup_memory_usage, .cgroup_memory_peak, .cgroup_memory_limit {
   display: none;
+}
+*/
+
+#summary-execs-table th, #active-executors-table th,
+#summary-execs-table td, #active-executors-table td {
+  white-space: nowrap;
 }
 
 .accordion-inner {
