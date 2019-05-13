@@ -21,6 +21,7 @@ import java.net.URLDecoder
 import java.text.SimpleDateFormat
 import java.util.{Date, Locale, TimeZone}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
 import scala.xml._
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -353,16 +354,27 @@ private[spark] object UIUtils extends Logging {
     val boundedStarted = math.min(started, total - completed)
     val startWidth = "width: %s%%".format((boundedStarted.toDouble/total)*100)
 
+    val details = new ArrayBuffer[String]
+    if (skipped == 0 && started > 0) details.append(s"$started running")
+    if (failed > 0) details.append(s"$failed failed")
+    if (skipped > 0) details.append(s"$skipped skipped")
+    if (!reasonToNumKilled.isEmpty) {
+      details.append(
+        reasonToNumKilled.toSeq.sortBy(-_._2).map {
+          case (reason, count) => s"$count killed: $reason"
+        }.mkString("; ")
+      )
+    }
+
+    val sb = new StringBuilder
+    sb ++= s"$completed/$total"
+    if (!details.isEmpty) {
+      sb ++= s" (${details.mkString("; ")})"
+    }
+
     <div class="progress">
       <span style="text-align:center; position:absolute; width:100%; left:0;">
-        {completed}/{total}
-        { if (failed == 0 && skipped == 0 && started > 0) s"($started running)" }
-        { if (failed > 0) s"($failed failed)" }
-        { if (skipped > 0) s"($skipped skipped)" }
-        { reasonToNumKilled.toSeq.sortBy(-_._2).map {
-            case (reason, count) => s"($count killed: $reason)"
-          }
-        }
+        { sb.mkString }
       </span>
       <div class="bar bar-completed" style={completeWidth}></div>
       <div class="bar bar-running" style={startWidth}></div>
