@@ -43,7 +43,7 @@ from pyspark.java_gateway import local_connect_and_auth
 from pyspark.serializers import NoOpSerializer, CartesianDeserializer, \
     BatchedSerializer, CloudPickleSerializer, PairDeserializer, \
     PickleSerializer, pack_long, AutoBatchedSerializer, write_with_length, \
-    UTF8Deserializer
+    UTF8Deserializer, get_serializer_class
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_full_outer_join, python_cogroup
 from pyspark.statcounter import StatCounter
@@ -2387,7 +2387,7 @@ class RDD(object):
 
 def _prepare_for_python_RDD(sc, command):
     # the serialized command will be compressed by broadcast
-    ser = CloudPickleSerializer()
+    ser = get_serializer_class("PYSPARK_RDD_CODE_SERIALIZER")()
     pickled_command = ser.dumps(command)
     if len(pickled_command) > (1 << 20):  # 1M
         # The broadcast will have same life cycle as created PythonRDD

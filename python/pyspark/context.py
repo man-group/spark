@@ -35,7 +35,8 @@ from pyspark.conf import SparkConf
 from pyspark.files import SparkFiles
 from pyspark.java_gateway import launch_gateway, local_connect_and_auth
 from pyspark.serializers import PickleSerializer, BatchedSerializer, UTF8Deserializer, \
-    PairDeserializer, AutoBatchedSerializer, NoOpSerializer, ChunkedStream
+    PairDeserializer, AutoBatchedSerializer, NoOpSerializer, ChunkedStream, \
+    get_serializer_class
 from pyspark.storagelevel import StorageLevel
 from pyspark.rdd import RDD, _load_from_socket, ignore_unicode_prefix
 from pyspark.traceback_utils import CallSite, first_spark_call
@@ -75,7 +76,7 @@ class SparkContext(object):
     PACKAGE_EXTENSIONS = ('.zip', '.egg', '.jar')
 
     def __init__(self, master=None, appName=None, sparkHome=None, pyFiles=None,
-                 environment=None, batchSize=0, serializer=PickleSerializer(), conf=None,
+                 environment=None, batchSize=0, serializer=None, conf=None,
                  gateway=None, jsc=None, profiler_cls=BasicProfiler):
         """
         Create a new SparkContext. At least the master and app name should be set,
@@ -125,6 +126,9 @@ class SparkContext(object):
                     " risk, you can set the environment variable"
                     " 'PYSPARK_ALLOW_INSECURE_GATEWAY=1', but"
                     " note this option will be removed in Spark 3.0")
+
+        if serializer is None:
+            serializer = get_serializer_class("PYSPARK_RDD_DATA_SERIALIZER")()
 
         SparkContext._ensure_initialized(self, gateway=gateway, conf=conf)
         try:

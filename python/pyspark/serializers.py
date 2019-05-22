@@ -58,6 +58,8 @@ import types
 import collections
 import zlib
 import itertools
+import importlib
+import os
 
 if sys.version < '3':
     import cPickle as pickle
@@ -758,6 +760,49 @@ class ChunkedStream(object):
         # -1 length indicates to the receiving end that we're done.
         write_int(-1, self.wrapped)
         self.wrapped.close()
+
+
+def _get_class_dynamically(absolute_class_str):
+    """
+    The class needs to be absolute.
+
+    >>> _get_class_dynamically("pyspark.serializers.CloudPickleSerializer")
+    pyspark.serializers.CloudPickleSerializer
+    """
+    module_str = '.'.join(absolute_class_str.split('.')[:-1])
+    module = importlib.import_module(module_str)
+
+    class_str = absolute_class_str.split('.')[-1]
+    class_ = getattr(module, class_str)
+
+    return class_
+
+
+_DEFAULT_SERIALIZER_CLASSES = {
+    "PYSPARK_RDD_CODE_SERIALIZER": CloudPickleSerializer,
+    "PYSPARK_RDD_DATA_SERIALIZER": PickleSerializer,
+}
+
+
+def get_serializer_class(env_variable):
+    """
+    Return a suitable serializer class.
+
+    Example usage: my_serializer = _get_serializer("PYSPARK_RDD_CODE_SERIALIZER")()
+    """
+
+    # Backwards compatibility due to bad naming on my part
+    # (PYSPARK_RDD_CODE_SERIALIZER used to be PYSPARK_RDD_SERIALIZER):
+    if env_variable == "PYSPARK_RDD_CODE_SERIALIZER" \
+            and "PYSPARK_RDD_CODE_SERIALIZER" not in os.environ \
+            and "PYSPARK_RDD_SERIALIZER" in os.environ:
+        env_variable = "PYSPARK_RDD_SERIALIZER"
+
+    explicit_serializer_str = os.environ.get(env_variable)
+
+    if explicit_serializer_str:
+        return _get_class_dynamically(explicit_serializer_str)
+    return _DEFAULT_SERIALIZER_CLASSES[env_variable]
 
 
 if __name__ == '__main__':
