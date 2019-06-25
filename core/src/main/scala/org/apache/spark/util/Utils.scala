@@ -2567,20 +2567,12 @@ private[spark] object Utils extends Logging {
           "please update your configs.")
     }
 
-    if (conf.get(EXECUTOR_INSTANCES).getOrElse(Int.MaxValue) < conf.get(DYN_ALLOCATION_MIN_EXECUTORS)) {
-      logWarning(s"${EXECUTOR_INSTANCES.key} less than " +
-        s"${DYN_ALLOCATION_MIN_EXECUTORS.key} is invalid, ignoring its setting, " +
-          "please update your configs.")
-    }
-
     val initialExecutors = Seq(
       conf.get(DYN_ALLOCATION_MIN_EXECUTORS),
-      conf.get(DYN_ALLOCATION_INITIAL_EXECUTORS),
-      conf.get(EXECUTOR_INSTANCES).getOrElse(0)).max
+      conf.get(DYN_ALLOCATION_INITIAL_EXECUTORS)).max
 
     logInfo(s"Using initial executors = $initialExecutors, max of " +
-      s"${DYN_ALLOCATION_INITIAL_EXECUTORS.key}, ${DYN_ALLOCATION_MIN_EXECUTORS.key} and " +
-        s"${EXECUTOR_INSTANCES.key}")
+      s"${DYN_ALLOCATION_INITIAL_EXECUTORS.key} and ${DYN_ALLOCATION_MIN_EXECUTORS.key}")
     initialExecutors
   }
 

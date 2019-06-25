@@ -853,21 +853,21 @@ class UtilsSuite extends SparkFunSuite with ResetSystemProperties with Logging {
   }
 
   test("getDynamicAllocationInitialExecutors") {
-    val conf = new SparkConf()
-    assert(Utils.getDynamicAllocationInitialExecutors(conf) === 0)
+    assert(Utils.getDynamicAllocationInitialExecutors(new SparkConf()) === 0)
+
+    // spark.executor.instances should never affect dynamic allocation
     assert(Utils.getDynamicAllocationInitialExecutors(
-      conf.set("spark.dynamicAllocation.minExecutors", "3")) === 3)
-    assert(Utils.getDynamicAllocationInitialExecutors( // should use minExecutors
-      conf.set("spark.executor.instances", "2")) === 3)
-    assert(Utils.getDynamicAllocationInitialExecutors( // should use executor.instances
-      conf.set("spark.executor.instances", "4")) === 4)
-    assert(Utils.getDynamicAllocationInitialExecutors( // should use executor.instances
-      conf.set("spark.dynamicAllocation.initialExecutors", "3")) === 4)
-    assert(Utils.getDynamicAllocationInitialExecutors( // should use initialExecutors
-      conf.set("spark.dynamicAllocation.initialExecutors", "5")) === 5)
-    assert(Utils.getDynamicAllocationInitialExecutors( // should use minExecutors
-      conf.set("spark.dynamicAllocation.initialExecutors", "2")
-        .set("spark.executor.instances", "1")) === 3)
+      new SparkConf()
+        .set("spark.executor.instances", "9999")
+        .set("spark.dynamicAllocation.initialExecutors", "10")
+        .set("spark.dynamicAllocation.minExecutors", "20")
+    ) === 20)
+    assert(Utils.getDynamicAllocationInitialExecutors(
+      new SparkConf()
+        .set("spark.executor.instances", "9999")
+        .set("spark.dynamicAllocation.initialExecutors", "20")
+        .set("spark.dynamicAllocation.minExecutors", "10")
+    ) === 20)
   }
 
   test("Set Spark CallerContext") {
