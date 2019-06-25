@@ -2567,7 +2567,7 @@ private[spark] object Utils extends Logging {
           "please update your configs.")
     }
 
-    if (conf.get(EXECUTOR_INSTANCES).getOrElse(0) < conf.get(DYN_ALLOCATION_MIN_EXECUTORS)) {
+    if (conf.get(EXECUTOR_INSTANCES).getOrElse(Int.MaxValue) < conf.get(DYN_ALLOCATION_MIN_EXECUTORS)) {
       logWarning(s"${EXECUTOR_INSTANCES.key} less than " +
         s"${DYN_ALLOCATION_MIN_EXECUTORS.key} is invalid, ignoring its setting, " +
           "please update your configs.")
