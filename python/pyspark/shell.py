@@ -58,6 +58,7 @@ except TypeError:
                       "please make sure you build spark with hive")
     spark = SparkSession.builder.getOrCreate()
 
+ss = spark
 sc = spark.sparkContext
 sql = spark.sql
 atexit.register(lambda: sc.stop())
@@ -77,7 +78,7 @@ print("Using Python version %s (%s, %s)" % (
     platform.python_version(),
     platform.python_build()[0],
     platform.python_build()[1]))
-print("SparkSession available as 'spark'.")
+print("SparkSession available as 'spark' or 'ss'.")
 
 # The ./bin/pyspark script stores the old PYTHONSTARTUP value in OLD_PYTHONSTARTUP,
 # which allows us to execute the user's PYTHONSTARTUP file:

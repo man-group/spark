@@ -46,6 +46,7 @@ class SparkILoop(in0: Option[BufferedReader], out: JPrintWriter)
       } else {
         org.apache.spark.repl.Main.createSparkSession()
       }
+    @transient val ss = spark
     @transient val sc = {
       val _sc = spark.sparkContext
       if (_sc.getConf.getBoolean("spark.ui.reverseProxy", false)) {
@@ -63,7 +64,7 @@ class SparkILoop(in0: Option[BufferedReader], out: JPrintWriter)
       }
       println("Spark context available as 'sc' " +
         s"(master = ${_sc.master}, app id = ${_sc.applicationId}).")
-      println("Spark session available as 'spark'.")
+      println("Spark session available as 'spark' or 'ss'.")
       _sc
     }
     """,
