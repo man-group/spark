@@ -272,6 +272,13 @@ private[spark] abstract class BasePythonRunner[IN, OUT](
     }
   }
 
+  object ReaderIterator {
+    val PYTHON_WORKER_CRASH_MESSAGE = """Python worker exited unexpectedly (crashed),
+                                        |likely because it exceeded its memory limits and got killed.
+                                        |Run 'dmesg -T | less' on the worker machine to investigate.
+                                        |""".stripMargin.replaceAll("\n", " ").trim
+  }
+
   abstract class ReaderIterator(
       stream: DataInputStream,
       writerThread: WriterThread,
@@ -362,12 +369,12 @@ private[spark] abstract class BasePythonRunner[IN, OUT](
         throw new TaskKilledException(context.getKillReason().getOrElse("unknown reason"))
 
       case e: Exception if writerThread.exception.isDefined =>
-        logError("Python worker exited unexpectedly (crashed)", e)
+        logError(ReaderIterator.PYTHON_WORKER_CRASH_MESSAGE, e)
         logError("This may have been caused by a prior exception:", writerThread.exception.get)
         throw writerThread.exception.get
 
       case eof: EOFException =>
-        throw new SparkException("Python worker exited unexpectedly (crashed)", eof)
+        throw new SparkException(ReaderIterator.PYTHON_WORKER_CRASH_MESSAGE, eof)
     }
   }
 
